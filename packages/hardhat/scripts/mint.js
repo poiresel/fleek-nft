@@ -21,7 +21,7 @@ const main = async () => {
   console.log("\n\n 🎫 Minting to " + toAddress + "...\n");
 
   const { deployer } = await getNamedAccounts();
-  const yourCollectible = await ethers.getContract("YourCollectible", deployer);
+  const yourCollectible = await ethers.getContract("PrivateWedding", deployer);
 
   const buffalo = {
     description: "It's actually a bison?",
