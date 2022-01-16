@@ -58,7 +58,7 @@ const { ethers } = require("ethers");
     You can also bring in contract artifacts in `constants.js`
     (and then use the `useExternalContractLoader()` hook!)
 */
-const tokenAuth="7af57848-e78c-46ef-bc6c-0d9a25e9bb89"
+const tokenAuth=process.env.TOKEN_AUTH
 /// 📡 What chain are your contracts deployed to?
 const targetNetwork = NETWORKS.matic; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
