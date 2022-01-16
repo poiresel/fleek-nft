@@ -258,8 +258,6 @@ function App(props) {
   const myMainnetDAIBalance = useContractReader(mainnetContracts, "DAI", "balanceOf", [
     "0x34aA3F359A9D614239015126635CE7732c18fDF3",
   ]);
-  //
-  const yourBalance = balance && balance.toNumber && balance.toNumber();
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
