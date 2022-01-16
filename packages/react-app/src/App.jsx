@@ -27,6 +27,7 @@ import { Account, Header, ThemeSwitch } from "./components";
 import { INFURA_ID, NETWORK, NETWORKS } from "./constants";
 import { Transactor } from "./helpers";
 import { useContractConfig } from "./hooks";
+import axios from 'axios';
 // import Hints from "./Hints";
 
 const { BufferList } = require("bl");
@@ -57,7 +58,7 @@ const { ethers } = require("ethers");
     You can also bring in contract artifacts in `constants.js`
     (and then use the `useExternalContractLoader()` hook!)
 */
-
+const tokenAuth="7af57848-e78c-46ef-bc6c-0d9a25e9bb89"
 /// 📡 What chain are your contracts deployed to?
 const targetNetwork = NETWORKS.matic; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
@@ -301,11 +302,25 @@ function App(props) {
     writeContracts,
     mainnetContracts,
   ]);
+  const [minting, setMinting] = useState(false);
+  const [mintList, setMintList] = useState([]);
 
   const memberDisplay = (
     <div>
       <h1>Welcome to the Exclusive Events members section</h1>
       As an airdropped holder, you're eligible to mint an event favor.
+      <Button
+                disabled={minting}
+                shape="round"
+                size="large"
+                onClick={() => {
+                  mintItem();
+                }}
+              >
+                MINT PARTY GIFTS
+      </Button>
+      <h2>Existing Mints</h2>
+      {mintList[0]}
     </div>
   )
 
@@ -393,6 +408,64 @@ function App(props) {
       </div>
     );
   }
+  
+
+  const mintItem = async () => {
+    setMinting(true);
+    const body  = {
+      "chain": "polygon",
+      "contract_address": "0x0c0ececd0e51160e1e5eaef2aac4a705f45501cd",
+      "metadata_uri": "ipfs://bafkreida3ejtoyqfzpoyy2oplkpho53rchai7ptsbjsjxp3irzk5djzore",
+      "mint_to_address": address
+      }
+    
+
+    const options = {
+      method: 'POST',
+      url: 'https://api.nftport.xyz/v0/mints/customizable',
+      headers: {'Content-Type': 'application/json', Authorization: tokenAuth},
+      data: body
+    };
+    
+    axios.request(options).then(async function (response) {
+      console.log(response.data);
+      const hash = response.data.transaction_hash;
+      const trxn = `https://api.nftport.xyz/v0/mints/${hash}?chain=polygon`
+      const options2 = {
+        method: 'GET',
+        url: trxn,
+        headers: {'Content-Type': 'application/json', Authorization: tokenAuth},
+      };
+      axios.request(options2).then(function (response) {
+        console.log(response.data)
+        setMinting(false);
+        return response.data
+      })
+    }).catch(function (error) {
+      console.error(error);
+      setMinting(false)
+    });
+  };
+
+  const getMints = async () => {
+    
+    const options = {
+      method: 'GET',
+      url: 'https://api.nftport.xyz/v0/me/mints/?chain=polygon',
+      headers: {'Content-Type': 'application/json', Authorization: tokenAuth},
+    };
+    
+    axios.request(options).then(function (response) {
+      console.log(response.data);
+      setMintList(response.data)
+    }).catch(function (error) {
+      console.error(error);
+    });
+  }
+
+  // useEffect(() => {
+  //   getMints()
+  // }, [minting, address]);
 
   const loadWeb3Modal = useCallback(async () => {
     const provider = await web3Modal.connect();
@@ -457,7 +530,7 @@ function App(props) {
   }
 
   const [count, setCount] = useState(1);
-
+ 
   const [lockedModal, setLockedModal] = useState(false);
 
   const checkLockContract = async () => {
